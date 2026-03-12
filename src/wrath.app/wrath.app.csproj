@@ -3,6 +3,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <UseWinUI>true</UseWinUI>
+    <EnablePackaging Condition="'$(EnablePackaging)' == ''">false</EnablePackaging>
+    <WindowsPackageType Condition="'$(EnablePackaging)' == 'true'">MSIX</WindowsPackageType>
+    <WindowsPackageType Condition="'$(EnablePackaging)' != 'true'">None</WindowsPackageType>
+    <EnableMsixTooling Condition="'$(EnablePackaging)' == 'true'">true</EnableMsixTooling>
+    <EnableMsixTooling Condition="'$(EnablePackaging)' != 'true'">false</EnableMsixTooling>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <Nullable>enable</Nullable>
   </PropertyGroup>
