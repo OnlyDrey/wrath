@@ -54,21 +54,24 @@ Requirements:
 
 - Windows 10 (version 2004 / build 19041) or Windows 11
 - .NET 8 SDK (`dotnet --info`)
-- Windows App SDK 1.8 runtime support (self-contained app runtime is enabled in `wrath.app`, so global runtime install is optional for local app startup)
+- Windows App Runtime 1.8 installed (required for normal local framework-dependent unpackaged execution)
 - Visual Studio 2022 17.8+ with Windows development tooling (recommended for WinUI diagnostics)
 
-Local run steps (unpackaged WinUI desktop app):
+Local build and run (unpackaged WinUI desktop app):
 
 1. `dotnet clean wrath.sln`
 2. `dotnet restore wrath.sln`
 3. `dotnet build wrath.sln`
-4. `dotnet test wrath.sln`
-5. `dotnet run --project src/wrath.app/wrath.app.csproj`
+4. `dotnet run --project src/wrath.app/wrath.app.csproj`
+
+Optional self-contained publish (explicit RID required):
+
+- `dotnet publish src/wrath.app/wrath.app.csproj -c Release -f net8.0-windows10.0.19041.0 -r win-x64 -p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true`
 
 Notes:
 
-- `src/wrath.app` is configured as unpackaged (`AppxPackage=false`, `WindowsPackageType=None`) for local development.
-- If a machine is missing Windows SDK/WinUI build prerequisites, install/update Visual Studio Windows tools and rerun the commands above.
+- `src/wrath.app` is configured as unpackaged for local development (`AppxPackage=false`, `WindowsPackageType=None`).
+- Do not enable `WindowsAppSDKSelfContained=true` unconditionally in the project for normal solution builds.
 
 ## Quick Verification
 

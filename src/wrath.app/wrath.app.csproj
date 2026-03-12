@@ -5,7 +5,6 @@
     <UseWinUI>true</UseWinUI>
     <AppxPackage>false</AppxPackage>
     <WindowsPackageType>None</WindowsPackageType>
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <Nullable>enable</Nullable>
   </PropertyGroup>
