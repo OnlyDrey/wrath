@@ -1,0 +1,31 @@
+<Application
+    x:Class="Wrath.App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <Color x:Key="WrathBackgroundDark">#0A0F18</Color>
+        <Color x:Key="WrathSurface">#121A26</Color>
+        <Color x:Key="WrathBorder">#223045</Color>
+        <Color x:Key="WrathAccentBlue">#0078D4</Color>
+        <Color x:Key="WrathAccentBlueDeep">#1F6FEB</Color>
+        <Color x:Key="WrathAccentOrange">#FF6A3D</Color>
+        <Color x:Key="WrathTextPrimary">#E6EDF3</Color>
+        <Color x:Key="WrathTextSecondary">#8B949E</Color>
+
+        <SolidColorBrush x:Key="WrathBackgroundBrush" Color="{StaticResource WrathBackgroundDark}" />
+        <SolidColorBrush x:Key="WrathSurfaceBrush" Color="{StaticResource WrathSurface}" />
+        <SolidColorBrush x:Key="WrathBorderBrush" Color="{StaticResource WrathBorder}" />
+        <SolidColorBrush x:Key="WrathAccentBrush" Color="{StaticResource WrathAccentBlue}" />
+        <SolidColorBrush x:Key="WrathAccentDeepBrush" Color="{StaticResource WrathAccentBlueDeep}" />
+        <SolidColorBrush x:Key="WrathOrangeBrush" Color="{StaticResource WrathAccentOrange}" />
+        <SolidColorBrush x:Key="WrathTextPrimaryBrush" Color="{StaticResource WrathTextPrimary}" />
+        <SolidColorBrush x:Key="WrathTextSecondaryBrush" Color="{StaticResource WrathTextSecondary}" />
+
+        <Style x:Key="WrathPrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource WrathAccentBrush}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+    </Application.Resources>
+</Application>

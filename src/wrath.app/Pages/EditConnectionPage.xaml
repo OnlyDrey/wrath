@@ -1,0 +1,20 @@
+<Page
+    x:Class="Wrath.App.Pages.EditConnectionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer Background="{StaticResource WrathBackgroundBrush}">
+        <StackPanel Padding="16" Spacing="8">
+            <TextBox x:Name="NameBox" Header="Name" />
+            <ComboBox x:Name="ProtocolBox" Header="Protocol">
+                <x:String>Rdp</x:String>
+                <x:String>Ssh</x:String>
+            </ComboBox>
+            <TextBox x:Name="HostBox" Header="Host" />
+            <TextBox x:Name="PortBox" Header="Port" />
+            <TextBox x:Name="UsernameBox" Header="Username" />
+            <TextBox x:Name="GroupBox" Header="Group" />
+            <TextBox x:Name="TagsBox" Header="Tags (comma-separated)" />
+            <Button Content="Save" Click="Save_Click" Style="{StaticResource WrathPrimaryButtonStyle}" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>
