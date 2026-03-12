@@ -34,7 +34,9 @@
             <AppBarButton Icon="Find" Label="Search" Click="Search_Click" Foreground="{StaticResource WrathAccentBrush}" />
             <AppBarButton Icon="Add" Label="New" Click="New_Click" Foreground="{StaticResource WrathAccentBrush}" />
             <AppBarButton Icon="Page" Label="History" Click="History_Click" Foreground="{StaticResource WrathAccentBrush}" />
-            <TextBox x:Name="SearchBox" Width="320" PlaceholderText="Search name, host, tags" Margin="12,0,0,0" />
+            <AppBarElementContainer Margin="12,0,0,0">
+                <TextBox x:Name="SearchBox" Width="320" PlaceholderText="Search name, host, tags" />
+            </AppBarElementContainer>
         </CommandBar>
 
         <NavigationView x:Name="RootNav" Grid.Row="2" SelectionChanged="RootNav_SelectionChanged" Background="{StaticResource WrathBackgroundBrush}">
