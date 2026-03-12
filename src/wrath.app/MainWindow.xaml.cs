@@ -13,6 +13,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         _viewModel = viewModel;
         RootFrame.Navigate(typeof(Pages.ConnectionsPage), _viewModel);
+        UpdateMessages();
     }
 
     private void RootNav_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -30,13 +31,21 @@ public sealed partial class MainWindow : Window
         RootFrame.Navigate(pageType, _viewModel);
     }
 
-    private void Search_Click(object sender, RoutedEventArgs e)
+    private async void Search_Click(object sender, RoutedEventArgs e)
     {
         _viewModel.SearchText = SearchBox.Text;
         _viewModel.SearchCommand.Execute(null);
+        await Task.Delay(30);
+        UpdateMessages();
     }
 
     private void New_Click(object sender, RoutedEventArgs e) => RootFrame.Navigate(typeof(Pages.EditConnectionPage), _viewModel);
 
     private void History_Click(object sender, RoutedEventArgs e) => RootFrame.Navigate(typeof(Pages.SessionHistoryPage), _viewModel);
+
+    public void UpdateMessages()
+    {
+        StatusText.Text = string.IsNullOrWhiteSpace(_viewModel.StatusMessage) ? "Ready" : _viewModel.StatusMessage;
+        ErrorText.Text = _viewModel.ErrorMessage ?? string.Empty;
+    }
 }

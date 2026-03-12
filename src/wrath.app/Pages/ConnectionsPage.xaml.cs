@@ -15,6 +15,7 @@ public sealed partial class ConnectionsPage : Page
     {
         _vm = e.Parameter as MainShellViewModel;
         if (_vm is null) return;
+
         await _vm.LoadAsync();
         ConnectionsList.ItemsSource = _vm.Connections;
     }
@@ -25,14 +26,17 @@ public sealed partial class ConnectionsPage : Page
         if (sender is Button { Tag: Guid id })
         {
             await _vm.LaunchAsync(id);
+            ConnectionsList.ItemsSource = null;
+            ConnectionsList.ItemsSource = _vm.Connections;
         }
     }
 
     private void ConnectionsList_ItemClick(object sender, ItemClickEventArgs e)
     {
+        if (_vm is null) return;
         if (e.ClickedItem is ConnectionProfile profile)
         {
-            Frame.Navigate(typeof(ConnectionDetailsPage), new Tuple<MainShellViewModel, Guid>(_vm!, profile.Id));
+            Frame.Navigate(typeof(ConnectionDetailsPage), new Tuple<MainShellViewModel, Guid>(_vm, profile.Id));
         }
     }
 }

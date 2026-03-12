@@ -13,12 +13,26 @@ public sealed partial class EditConnectionPage : Page
 
     public EditConnectionPage() => InitializeComponent();
 
-    protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
+    protected override async void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
     {
         if (e.Parameter is Tuple<MainShellViewModel, Guid> edit)
         {
             _vm = edit.Item1;
             _editingId = edit.Item2;
+
+            await _vm.LoadAsync();
+            var profile = _vm.Connections.FirstOrDefault(x => x.Id == _editingId);
+            if (profile is not null)
+            {
+                NameBox.Text = profile.Name;
+                HostBox.Text = profile.Host;
+                PortBox.Text = profile.Port.ToString();
+                UsernameBox.Text = profile.Username ?? string.Empty;
+                GroupBox.Text = profile.GroupPath ?? string.Empty;
+                TagsBox.Text = string.Join(", ", profile.Tags.Select(x => x.Value));
+                ProtocolBox.SelectedIndex = profile.Protocol == ProtocolType.Ssh ? 1 : 0;
+                return;
+            }
         }
         else
         {
@@ -32,9 +46,14 @@ public sealed partial class EditConnectionPage : Page
     {
         if (_vm is null) return;
 
-        var protocol = Enum.TryParse<ProtocolType>(ProtocolBox.SelectedItem?.ToString(), true, out var p)
-            ? p
-            : ProtocolType.Rdp;
+        var protocol = ProtocolBox.SelectedIndex == 1 ? ProtocolType.Ssh : ProtocolType.Rdp;
+        var parsedTags = TagsBox.Text
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(x => x.Trim())
+            .Where(x => x.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
         var request = new ConnectionProfileRequest(
             NameBox.Text,
             protocol,
@@ -42,9 +61,13 @@ public sealed partial class EditConnectionPage : Page
             int.TryParse(PortBox.Text, out var port) ? port : protocol == ProtocolType.Rdp ? 3389 : 22,
             UsernameBox.Text,
             GroupBox.Text,
-            TagsBox.Text.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+            parsedTags);
 
         await _vm.CreateOrUpdateAsync(_editingId, request);
-        Frame.Navigate(typeof(ConnectionsPage), _vm);
+
+        if (_vm.ErrorMessage is null)
+        {
+            Frame.Navigate(typeof(ConnectionsPage), _vm);
+        }
     }
 }

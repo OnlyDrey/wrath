@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using Wrath.Application;
+using Microsoft.Extensions.Logging;
 using Wrath.Domain;
 using Wrath.Protocols.Abstractions;
 
@@ -7,6 +7,10 @@ namespace Wrath.Protocols.Rdp;
 
 public sealed class RdpProtocolProvider : IProtocolProvider
 {
+    private readonly ILogger<RdpProtocolProvider> _logger;
+
+    public RdpProtocolProvider(ILogger<RdpProtocolProvider> logger) => _logger = logger;
+
     public ProtocolType Protocol => ProtocolType.Rdp;
 
     public Task<LaunchResult> LaunchAsync(ConnectionProfile profile, CancellationToken ct)
@@ -20,12 +24,14 @@ public sealed class RdpProtocolProvider : IProtocolProvider
 
         try
         {
+            _logger.LogInformation("Launching RDP process. Host={Host} Port={Port}", profile.Host, profile.Port);
             Process.Start(psi);
             return Task.FromResult(new LaunchResult(true, "RDP launch triggered."));
         }
         catch (Exception ex)
         {
-            return Task.FromResult(new LaunchResult(false, $"RDP launch failed: {ex.Message}"));
+            _logger.LogWarning(ex, "RDP launch failed. Host={Host} Port={Port}", profile.Host, profile.Port);
+            return Task.FromResult(new LaunchResult(false, "RDP launch failed.", ex.Message));
         }
     }
 }

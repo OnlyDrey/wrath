@@ -9,8 +9,10 @@
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <TextBlock Text="{Binding Timestamp}" Width="220" />
                         <TextBlock Text="{Binding Protocol}" Width="80" />
-                        <TextBlock Text="{Binding EventType}" Width="160" />
-                        <TextBlock Text="{Binding Message}" />
+                        <TextBlock Text="{Binding Host}" Width="180" />
+                        <TextBlock Text="{Binding Succeeded}" Width="80" />
+                        <TextBlock Text="{Binding Message}" Width="220" />
+                        <TextBlock Text="{Binding ErrorMessage}" Width="260" />
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>

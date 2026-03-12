@@ -1,115 +1,89 @@
-# wrath MVP foundation
+# wrath
 
-## Project overview
-`wrath` is a native Windows MVP for managing and launching remote access connections (starting with RDP and SSH) from a single app shell.
+wrath is a native Windows remote access hub built with .NET 8 and WinUI 3. It provides a single place to manage connection profiles, launch supported protocols, and track session launch history while keeping domain, application, and infrastructure responsibilities clearly separated.
 
-## Projects structure
-- `src/wrath.app`: WinUI 3 app host and navigation shell
-- `src/wrath.ui`: MVVM view-models and command helpers
-- `src/wrath.application`: use cases and orchestration services
-- `src/wrath.domain`: entities, enums, validation rules, repository interfaces
-- `src/wrath.infrastructure`: SQLite initialization and repository implementations
-- `src/wrath.security`: vault adapter abstraction and placeholder implementation
-- `src/wrath.protocols.abstractions`: protocol contracts and dispatch
-- `src/wrath.protocols.rdp`: RDP launch provider (`mstsc.exe` handoff)
-- `src/wrath.protocols.ssh`: SSH launch provider (`ssh.exe` handoff)
-- `tests/wrath.domain.tests`: domain rule tests
-- `tests/wrath.application.tests`: application flow tests
+## Why this project exists
 
-## Setup
-1. Install .NET 8 SDK.
-2. Install Windows App SDK / WinUI 3 development workload.
-3. Restore dependencies:
-   - `dotnet restore wrath.sln`
-4. Build:
-   - `dotnet build wrath.sln`
-5. Run tests:
-   - `dotnet test wrath.sln`
-6. Run app:
-   - `dotnet run --project src/wrath.app/wrath.app.csproj`
+Windows administrators and engineers often switch between separate tools for RDP, SSH, file access, and operational tracking. This project exists to provide one Windows-first application that centralizes remote connection management, protocol launch orchestration, and session traceability.
 
-## MVP capabilities
-- Create and edit connection profiles
-- Persist profile metadata in SQLite
-- Search profiles by name/host/tags
-- Launch RDP sessions through provider dispatch
-- Launch SSH sessions through provider dispatch
-- Record and view session launch history
+## Key Features
 
-## Current Implementation Status
-- **Solution structure**: multi-project solution with layered boundaries (`domain`, `application`, `infrastructure`, `security`, `protocols`, `ui`, `app`).
-- **Domain model**: implemented core entities (`ConnectionProfile`, `CredentialRef`, `SessionRecord`, `Tag`, `VaultPolicy`) and validation rules.
-- **Application services**: implemented create, update, search, launch, and session event recording orchestration.
-- **SQLite persistence**: implemented DB initialization plus repositories for profiles and session history.
-- **Protocol providers**: implemented RDP and SSH providers behind a common protocol dispatch contract.
-- **WinUI shell**: implemented navigation, connection list/details/edit pages, search box, and launch actions.
-- **Session history**: session launch events are persisted and displayed in history page.
-- **Unit tests**: domain and application tests are present for validation and launch/search flow behavior.
+- Connection profiles with protocol, host, port, user, grouping, and tags
+- Protocol abstraction with provider dispatch
+- RDP and SSH launch providers
+- Session history recording for launch attempts and outcomes
+- SQLite persistence for profile/session metadata
+- Layered architecture (domain/application/infrastructure/security/protocols/UI)
 
-## Quick Verification (5-minute sanity check)
-1. Build solution:
-   - `dotnet build wrath.sln`
-2. Run the app:
-   - `dotnet run --project src/wrath.app/wrath.app.csproj`
-3. In the UI, create a new profile:
-   - Name: `Test RDP`
-   - Protocol: `Rdp`
-   - Host: `localhost`
-   - Port: `3389`
-4. Verify SQLite persistence:
-   - Confirm database file is created under `%LOCALAPPDATA%\wrath\wrath.db`.
-   - Optional: inspect `connection_profiles` rows with a SQLite viewer.
-5. Search for the profile using the top search box (`Test` or `localhost`).
-6. Trigger **Launch** for the RDP profile and verify `mstsc.exe` starts.
-7. Create an SSH profile (`Protocol=Ssh`, `Port=22`) and trigger **Launch** to verify `ssh.exe` handoff.
-8. Open **Session History** page and confirm launch requested/success or failure entries are recorded.
+## Screenshots
 
-## Development Roadmap (Next Steps)
+Screenshots will be added as the UI matures.
 
-### Phase 1 — Stabilize MVP
-- Ensure solution builds cleanly on a standard Windows dev machine
-- Verify DI wiring across all runtime paths
-- Improve error handling and user-visible failure states
-- Add structured logging around protocol launch attempts/results
-- Improve SQLite schema management (versioning/migrations)
+## Architecture
 
-### Phase 2 — UX improvements
-- Improve connection list usability and clarity
-- Expand grouping/tag management in UI workflows
-- Improve search behavior and filtering controls
-- Add clear launch feedback (status messages/toasts)
-
-### Phase 3 — Security layer
-- Implement real credential vault integration
-- Integrate Windows Credential Manager and/or DPAPI-backed storage
-- Replace placeholder vault adapter with production implementation
-
-### Phase 4 — Protocol expansion
-- Add SFTP protocol provider and file operations flow
-- Add HTTPS/web session launch flow
-- Introduce plugin-based provider loading model for future protocols
-
-### Phase 5 — Enterprise features
-- Add policy controls and enforcement points
-- Add profile import/export workflows
-- Add team profile sharing model
-- Add stronger audit logging and export support
-
-## Architecture Overview
-- **Domain**: business entities, value objects, invariants, and repository contracts.
-- **Application**: orchestration/use-case services that coordinate domain objects and interfaces.
-- **Infrastructure**: implementations for external systems (SQLite persistence, initialization, logging hooks).
-- **Security**: credential vault abstraction and secret-handling integration points.
-- **Protocols**: provider contracts and concrete launch providers (RDP, SSH), selected through dispatcher.
-- **UI**: WinUI shell and MVVM view-models that call application services.
+- **Domain**: entities, enums, value objects, and validation rules
+- **Application**: use-case orchestration and service workflows
+- **Infrastructure**: SQLite initialization, migrations, and repositories
+- **Security**: credential vault abstraction and integration point
+- **Protocols**: provider contracts and concrete launch handlers (RDP/SSH)
+- **UI**: WinUI shell, pages, and MVVM view-models
 
 Dependency direction:
-- `UI -> Application -> Domain`
-- `Infrastructure/Security/Protocols` implement interfaces consumed by `Application` and are wired via DI in `wrath.app`.
 
-## Contribution Guidelines
-- Follow modern C# conventions with nullable reference types enabled.
-- Keep UI code thin: pages should delegate logic to view-models/services.
-- Keep orchestration in the application layer (no direct infra/protocol logic in UI).
-- Keep business rules and validation in the domain layer.
-- Keep external system concerns (DB, OS integrations, process launch, vault providers) in infrastructure/security/protocol projects.
+- `UI -> Application -> Domain`
+- `Infrastructure`, `Security`, and `Protocols` implement interfaces used by `Application` and are wired in the app composition root.
+
+## Project Structure
+
+- `src/wrath.app` — WinUI host, navigation shell, DI composition root
+- `src/wrath.ui` — ViewModels and MVVM command primitives
+- `src/wrath.application` — Profile/session use-case services
+- `src/wrath.domain` — Core model and business rules
+- `src/wrath.infrastructure` — SQLite repositories and schema migration runner
+- `src/wrath.security` — Vault abstraction and current placeholder adapter
+- `src/wrath.protocols.abstractions` — Protocol contracts + dispatcher
+- `src/wrath.protocols.rdp` — `mstsc.exe` handoff provider
+- `src/wrath.protocols.ssh` — `ssh.exe` handoff provider
+
+## Setup
+
+Requirements:
+
+- Windows 10/11
+- .NET 8 SDK
+- WinUI 3 / Windows App SDK development tooling
+
+Commands:
+
+- `dotnet restore wrath.sln`
+- `dotnet build wrath.sln`
+- `dotnet test wrath.sln`
+- `dotnet run --project src/wrath.app/wrath.app.csproj`
+
+## Quick Verification (5 minute test)
+
+1. Build and run the app.
+2. Create a new RDP profile (`localhost`, port `3389`, tags like `lab,windows`).
+3. Confirm the profile appears in the Connections list.
+4. Search by name, host, and tag to confirm all match paths work.
+5. Launch the RDP profile and verify handoff to `mstsc.exe`.
+6. Create an SSH profile (`localhost`, port `22`) and launch it.
+7. Open Session History and verify launch requested + success/failure records are present.
+8. Confirm SQLite file creation at `%LOCALAPPDATA%\wrath\wrath.db`.
+
+## Development Roadmap
+
+- **Phase 1 – Stabilize MVP**: build reliability, diagnostics, migration coverage, and failure handling
+- **Phase 2 – UX improvements**: better connection management workflows and launch feedback
+- **Phase 3 – Security / credential vault**: production vault integration and secret handling
+- **Phase 4 – Protocol expansion**: SFTP/HTTPS and plugin-ready provider growth
+- **Phase 5 – Enterprise capabilities**: policy controls, import/export, sharing, and audit depth
+
+## Contributing
+
+Please keep changes aligned to layer responsibilities:
+
+- Keep UI thin and focused on presentation/state binding
+- Keep business rules and validation in the domain layer
+- Keep orchestration and use-case flows in the application layer
+- Keep external integrations (database, OS process, vault adapters) in infrastructure/security/protocol projects

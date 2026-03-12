@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 using Wrath.Domain;
 
 namespace Wrath.Infrastructure;
@@ -6,8 +7,13 @@ namespace Wrath.Infrastructure;
 public sealed class ConnectionProfileRepository : IConnectionProfileRepository
 {
     private readonly SqliteOptions _options;
+    private readonly ILogger<ConnectionProfileRepository> _logger;
 
-    public ConnectionProfileRepository(SqliteOptions options) => _options = options;
+    public ConnectionProfileRepository(SqliteOptions options, ILogger<ConnectionProfileRepository> logger)
+    {
+        _options = options;
+        _logger = logger;
+    }
 
     public async Task AddAsync(ConnectionProfile profile, CancellationToken ct)
     {
@@ -19,6 +25,7 @@ public sealed class ConnectionProfileRepository : IConnectionProfileRepository
 VALUES($id,$name,$protocol,$host,$port,$username,$group,$fav,$tags)";
         Bind(profile, cmd);
         await cmd.ExecuteNonQueryAsync(ct);
+        _logger.LogInformation("Profile persisted. ProfileId={ProfileId}", profile.Id);
     }
 
     public async Task UpdateAsync(ConnectionProfile profile, CancellationToken ct)
@@ -31,6 +38,7 @@ name=$name, host=$host, port=$port, username=$username, group_path=$group, is_fa
 WHERE id=$id";
         Bind(profile, cmd);
         await cmd.ExecuteNonQueryAsync(ct);
+        _logger.LogInformation("Profile updated in database. ProfileId={ProfileId}", profile.Id);
     }
 
     public async Task<ConnectionProfile?> GetByIdAsync(Guid id, CancellationToken ct)
@@ -56,7 +64,9 @@ WHERE id=$id";
         }
         else
         {
-            cmd.CommandText = "SELECT * FROM connection_profiles WHERE name LIKE $q OR host LIKE $q OR tags LIKE $q ORDER BY name";
+            cmd.CommandText = @"SELECT * FROM connection_profiles
+WHERE name LIKE $q OR host LIKE $q OR tags LIKE $q
+ORDER BY name";
             cmd.Parameters.AddWithValue("$q", $"%{text}%");
         }
 
