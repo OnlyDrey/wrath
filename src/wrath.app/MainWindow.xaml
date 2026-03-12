@@ -1,0 +1,33 @@
+<Window
+    x:Class="Wrath.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="wrath - Windows Remote Access Tool Hub">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <CommandBar>
+            <AppBarButton Icon="Find" Label="Search" Click="Search_Click" />
+            <AppBarButton Icon="Add" Label="New" Click="New_Click" />
+            <AppBarButton Icon="Page" Label="History" Click="History_Click" />
+            <TextBox x:Name="SearchBox" Width="300" PlaceholderText="Search connections" Margin="12,0,0,0" />
+        </CommandBar>
+
+        <NavigationView x:Name="RootNav" Grid.Row="1" SelectionChanged="RootNav_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Tag="connections" Content="Connections" Icon="AllApps" />
+                <NavigationViewItem Tag="details" Content="Details" Icon="Preview" />
+                <NavigationViewItem Tag="edit" Content="Create/Edit" Icon="Edit" />
+                <NavigationViewItem Tag="history" Content="Session History" Icon="History" />
+            </NavigationView.MenuItems>
+            <Frame x:Name="RootFrame" />
+        </NavigationView>
+    </Grid>
+</Window>

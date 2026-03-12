@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWinUI>true</UseWinUI>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240607000" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <ProjectReference Include="../wrath.ui/wrath.ui.csproj" />
+    <ProjectReference Include="../wrath.application/wrath.application.csproj" />
+    <ProjectReference Include="../wrath.infrastructure/wrath.infrastructure.csproj" />
+    <ProjectReference Include="../wrath.protocols.rdp/wrath.protocols.rdp.csproj" />
+    <ProjectReference Include="../wrath.protocols.ssh/wrath.protocols.ssh.csproj" />
+    <ProjectReference Include="../wrath.security/wrath.security.csproj" />
+  </ItemGroup>
+</Project>
