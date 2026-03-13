@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Wrath.Infrastructure;
 
 namespace Wrath.App;
@@ -77,7 +76,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         catch (Exception ex)
         {
             WriteStartupLog($"Application startup failed: {ex}");
-            ShowMinimalFallbackWindow();
+            throw;
         }
     }
 
@@ -115,29 +114,6 @@ public partial class App : Microsoft.UI.Xaml.Application
         {
             logger.LogCritical(ex, "Background initialization failed.");
             WriteStartupLog($"Background initialization failed: {ex}");
-            throw;
-        }
-    }
-
-    private void ShowMinimalFallbackWindow()
-    {
-        try
-        {
-            WriteStartupLog("Launching minimal fallback window");
-            _window = new Window
-            {
-                Content = new TextBlock
-                {
-                    Text = "Wrath minimal window",
-                    FontSize = 32
-                }
-            };
-            _window.Activate();
-            WriteStartupLog("Minimal fallback window activated");
-        }
-        catch (Exception ex)
-        {
-            WriteStartupLog($"Minimal fallback window failed: {ex}");
             throw;
         }
     }
