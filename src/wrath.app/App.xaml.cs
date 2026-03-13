@@ -58,10 +58,17 @@ public partial class App : Microsoft.UI.Xaml.Application
     {
         WriteStartupLog("OnLaunched entered");
 
+        if (_window is not null)
+        {
+            WriteStartupLog("Existing MainWindow instance found; re-activating.");
+            _window.Activate();
+            return;
+        }
+
         try
         {
             WriteStartupLog("Creating DI scope");
-            _uiScope = _host.Services.CreateScope();
+            _uiScope ??= _host.Services.CreateScope();
             var logger = _uiScope.ServiceProvider.GetRequiredService<ILogger<App>>();
 
             WriteStartupLog("Resolving MainWindow");
@@ -103,7 +110,6 @@ public partial class App : Microsoft.UI.Xaml.Application
                     catch (Exception ex)
                     {
                         WriteStartupLog($"MainWindow shell initialization failed: {ex}");
-                        throw;
                     }
                 });
 
@@ -114,7 +120,6 @@ public partial class App : Microsoft.UI.Xaml.Application
         {
             logger.LogCritical(ex, "Background initialization failed.");
             WriteStartupLog($"Background initialization failed: {ex}");
-            throw;
         }
     }
 
