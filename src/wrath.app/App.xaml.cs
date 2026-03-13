@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Wrath.Infrastructure;
 
 namespace Wrath.App;
@@ -22,53 +23,61 @@ public partial class App : Microsoft.UI.Xaml.Application
         HookGlobalExceptionHandlers();
         WriteStartupLog("App constructor entered");
 
-        InitializeComponent();
+        try
+        {
+            InitializeComponent();
 
-        _host = Host.CreateDefaultBuilder()
-            .ConfigureLogging(logging =>
-            {
-                logging.ClearProviders();
-                logging.AddDebug();
-                logging.AddConsole();
-            })
-            .ConfigureServices(services =>
-            {
-                var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "wrath", "wrath.db");
-                Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
+            _host = Host.CreateDefaultBuilder()
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddDebug();
+                    logging.AddConsole();
+                })
+                .ConfigureServices(services =>
+                {
+                    var dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "wrath", "wrath.db");
+                    Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 
-                services.AddApplication();
-                services.AddInfrastructure($"Data Source={dbPath}");
-                services.AddProtocols();
-                services.AddSecurity();
-                services.AddTransient<MainWindow>();
-            }).Build();
+                    services.AddApplication();
+                    services.AddInfrastructure($"Data Source={dbPath}");
+                    services.AddProtocols();
+                    services.AddSecurity();
+                    services.AddTransient<MainWindow>();
+                }).Build();
 
-        WriteStartupLog("Host built");
+            WriteStartupLog("Host built");
+        }
+        catch (Exception ex)
+        {
+            WriteStartupLog($"App constructor failed: {ex}");
+            throw;
+        }
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         WriteStartupLog("OnLaunched entered");
 
-        _uiScope = _host.Services.CreateScope();
-        var logger = _uiScope.ServiceProvider.GetRequiredService<ILogger<App>>();
-
         try
         {
-            WriteStartupLog("MainWindow resolution started");
+            WriteStartupLog("Creating DI scope");
+            _uiScope = _host.Services.CreateScope();
+            var logger = _uiScope.ServiceProvider.GetRequiredService<ILogger<App>>();
+
+            WriteStartupLog("Resolving MainWindow");
             _window = _uiScope.ServiceProvider.GetRequiredService<MainWindow>();
             WriteStartupLog("MainWindow resolved");
 
             _window.Activate();
-            WriteStartupLog("MainWindow activated");
+            WriteStartupLog("MainWindow Activate() called");
 
             _ = InitializeAsync(logger);
         }
         catch (Exception ex)
         {
-            logger.LogCritical(ex, "Application startup failed.");
             WriteStartupLog($"Application startup failed: {ex}");
-            throw;
+            ShowMinimalFallbackWindow();
         }
     }
 
@@ -86,9 +95,17 @@ public partial class App : Microsoft.UI.Xaml.Application
             {
                 var enqueued = mainWindow.DispatcherQueue.TryEnqueue(() =>
                 {
-                    WriteStartupLog("MainWindow shell initialization started");
-                    mainWindow.InitializeShell();
-                    WriteStartupLog("MainWindow shell initialization completed");
+                    try
+                    {
+                        WriteStartupLog("MainWindow shell initialization started");
+                        mainWindow.InitializeShell();
+                        WriteStartupLog("MainWindow shell initialization completed");
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteStartupLog($"MainWindow shell initialization failed: {ex}");
+                        throw;
+                    }
                 });
 
                 WriteStartupLog($"MainWindow shell initialization enqueue result: {enqueued}");
@@ -98,6 +115,30 @@ public partial class App : Microsoft.UI.Xaml.Application
         {
             logger.LogCritical(ex, "Background initialization failed.");
             WriteStartupLog($"Background initialization failed: {ex}");
+            throw;
+        }
+    }
+
+    private void ShowMinimalFallbackWindow()
+    {
+        try
+        {
+            WriteStartupLog("Launching minimal fallback window");
+            _window = new Window
+            {
+                Content = new TextBlock
+                {
+                    Text = "Wrath minimal window",
+                    FontSize = 32
+                }
+            };
+            _window.Activate();
+            WriteStartupLog("Minimal fallback window activated");
+        }
+        catch (Exception ex)
+        {
+            WriteStartupLog($"Minimal fallback window failed: {ex}");
+            throw;
         }
     }
 
