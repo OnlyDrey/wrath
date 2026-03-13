@@ -1,8 +1,11 @@
 <Application
     x:Class="Wrath.App.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls">
     <Application.Resources>
+        <controls:XamlControlsResources />
+
         <Color x:Key="WrathBackgroundDark">#0A0F18</Color>
         <Color x:Key="WrathSurface">#121A26</Color>
         <Color x:Key="WrathBorder">#223045</Color>
