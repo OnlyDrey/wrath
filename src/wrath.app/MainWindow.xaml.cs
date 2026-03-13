@@ -7,11 +7,23 @@ namespace Wrath.App;
 public sealed partial class MainWindow : Window
 {
     private readonly MainShellViewModel _viewModel;
+    private bool _shellInitialized;
 
     public MainWindow(MainShellViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;
+        UpdateMessages();
+    }
+
+    public void InitializeShell()
+    {
+        if (_shellInitialized)
+        {
+            return;
+        }
+
+        _shellInitialized = true;
         RootFrame.Navigate(typeof(Pages.ConnectionsPage), _viewModel);
         UpdateMessages();
     }

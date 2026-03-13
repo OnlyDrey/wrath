@@ -16,8 +16,15 @@ public sealed partial class ConnectionsPage : Page
         _vm = e.Parameter as MainShellViewModel;
         if (_vm is null) return;
 
-        await _vm.LoadAsync();
-        ConnectionsList.ItemsSource = _vm.Connections;
+        try
+        {
+            await _vm.LoadAsync();
+            ConnectionsList.ItemsSource = _vm.Connections;
+        }
+        catch
+        {
+            ConnectionsList.ItemsSource = Array.Empty<ConnectionProfile>();
+        }
     }
 
     private async void Launch_Click(object sender, RoutedEventArgs e)
