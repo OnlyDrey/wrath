@@ -1,8 +1,10 @@
+using System.Diagnostics;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Wrath.Infrastructure;
 
 namespace Wrath.App;
@@ -20,7 +22,7 @@ public partial class App : Microsoft.UI.Xaml.Application
         Directory.CreateDirectory(Path.GetDirectoryName(_startupLogPath)!);
 
         HookGlobalExceptionHandlers();
-        WriteStartupLog("App constructor entered");
+        LogStartup("App constructor entered");
 
         try
         {
@@ -45,81 +47,93 @@ public partial class App : Microsoft.UI.Xaml.Application
                     services.AddTransient<MainWindow>();
                 }).Build();
 
-            WriteStartupLog("Host built");
+            LogStartup("Host built");
         }
         catch (Exception ex)
         {
-            WriteStartupLog($"App constructor failed: {ex}");
+            LogStartup($"App constructor failed: {ex}");
             throw;
         }
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        WriteStartupLog("OnLaunched entered");
+        LogStartup("OnLaunched start");
 
         if (_window is not null)
         {
-            WriteStartupLog("Existing MainWindow instance found; re-activating.");
+            LogStartup("Existing window found; activating existing instance");
             _window.Activate();
             return;
         }
 
         try
         {
-            WriteStartupLog("Creating DI scope");
+            LogStartup("Creating DI scope");
             _uiScope ??= _host.Services.CreateScope();
             var logger = _uiScope.ServiceProvider.GetRequiredService<ILogger<App>>();
 
-            WriteStartupLog("Resolving MainWindow");
+            LogStartup("Before MainWindow creation");
             _window = _uiScope.ServiceProvider.GetRequiredService<MainWindow>();
-            WriteStartupLog("MainWindow resolved");
+            LogStartup("After MainWindow creation");
 
             _window.Activate();
-            WriteStartupLog("MainWindow Activate() called");
+            LogStartup("After Activate()");
 
             _ = InitializeAsync(logger);
         }
         catch (Exception ex)
         {
-            WriteStartupLog($"Application startup failed: {ex}");
-            throw;
+            LogStartup($"OnLaunched failed: {ex}");
+
+            try
+            {
+                _window = new Window
+                {
+                    Content = new TextBlock
+                    {
+                        Text = "Wrath startup failed. See %LocalAppData%\\wrath\\startup.log",
+                        TextWrapping = TextWrapping.Wrap,
+                        Margin = new Thickness(24)
+                    }
+                };
+                _window.Activate();
+                LogStartup("Fallback window activated");
+            }
+            catch (Exception fallbackEx)
+            {
+                LogStartup($"Fallback window failed: {fallbackEx}");
+                throw;
+            }
         }
     }
 
     private async Task InitializeAsync(ILogger<App> logger)
     {
-        WriteStartupLog("Background initialization started");
+        LogStartup("Background initialization started");
 
         try
         {
             var initializer = _uiScope!.ServiceProvider.GetRequiredService<SqliteInitializer>();
             await initializer.InitializeAsync(CancellationToken.None);
-            WriteStartupLog("Database initialization completed");
+            LogStartup("Database initialization completed");
 
             if (_window is MainWindow mainWindow)
             {
                 var enqueued = mainWindow.DispatcherQueue.TryEnqueue(() =>
                 {
-                    try
-                    {
-                        WriteStartupLog("MainWindow shell initialization started");
-                        mainWindow.InitializeShell();
-                        WriteStartupLog("MainWindow shell initialization completed");
-                    }
-                    catch (Exception ex)
-                    {
-                        WriteStartupLog($"MainWindow shell initialization failed: {ex}");
-                    }
+                    LogStartup("MainWindow shell initialization started");
+                    mainWindow.InitializeShell();
+                    LogStartup("MainWindow shell initialization completed");
                 });
 
-                WriteStartupLog($"MainWindow shell initialization enqueue result: {enqueued}");
+                LogStartup($"MainWindow shell initialization enqueue result: {enqueued}");
             }
         }
         catch (Exception ex)
         {
             logger.LogCritical(ex, "Background initialization failed.");
-            WriteStartupLog($"Background initialization failed: {ex}");
+            LogStartup($"Background initialization failed: {ex}");
         }
     }
 
@@ -127,24 +141,26 @@ public partial class App : Microsoft.UI.Xaml.Application
     {
         UnhandledException += (_, e) =>
         {
-            WriteStartupLog($"WinUI UnhandledException: {e.Exception}");
+            LogStartup($"WinUI UnhandledException: {e.Exception}");
         };
 
         AppDomain.CurrentDomain.UnhandledException += (_, e) =>
         {
-            WriteStartupLog($"AppDomain UnhandledException: {e.ExceptionObject}");
+            LogStartup($"AppDomain UnhandledException: {e.ExceptionObject}");
         };
 
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
-            WriteStartupLog($"TaskScheduler UnobservedTaskException: {e.Exception}");
+            LogStartup($"TaskScheduler UnobservedTaskException: {e.Exception}");
             e.SetObserved();
         };
     }
 
-    private void WriteStartupLog(string message)
+    private void LogStartup(string message)
     {
         var line = $"[{DateTimeOffset.Now:O}] {message}{Environment.NewLine}";
+        Debug.WriteLine(line);
+        Console.Error.WriteLine(line);
         File.AppendAllText(_startupLogPath, line, Encoding.UTF8);
     }
 }
