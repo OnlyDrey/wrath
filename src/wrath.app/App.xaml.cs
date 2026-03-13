@@ -9,6 +9,8 @@ namespace Wrath.App;
 public partial class App : Microsoft.UI.Xaml.Application
 {
     private readonly IHost _host;
+    private IServiceScope? _uiScope;
+    private Window? _window;
 
     public App()
     {
@@ -35,20 +37,21 @@ public partial class App : Microsoft.UI.Xaml.Application
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        using var scope = _host.Services.CreateScope();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<App>>();
+        _uiScope = _host.Services.CreateScope();
+        var logger = _uiScope.ServiceProvider.GetRequiredService<ILogger<App>>();
 
         try
         {
-            var initializer = scope.ServiceProvider.GetRequiredService<SqliteInitializer>();
+            var initializer = _uiScope.ServiceProvider.GetRequiredService<SqliteInitializer>();
             await initializer.InitializeAsync(CancellationToken.None);
+
+            _window = _uiScope.ServiceProvider.GetRequiredService<MainWindow>();
+            _window.Activate();
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Database initialization failed.");
+            logger.LogCritical(ex, "Application startup failed.");
+            throw;
         }
-
-        var window = scope.ServiceProvider.GetRequiredService<MainWindow>();
-        window.Activate();
     }
 }
