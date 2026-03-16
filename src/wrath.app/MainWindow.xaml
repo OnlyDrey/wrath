@@ -38,7 +38,7 @@
                 <NavigationViewItem Tag="connections" Content="Connections" Icon="AllApps" />
                 <NavigationViewItem Tag="details" Content="Details" Icon="Preview" />
                 <NavigationViewItem Tag="edit" Content="Create/Edit" Icon="Edit" />
-                <NavigationViewItem Tag="history" Content="Session History" Icon="History" />
+                <NavigationViewItem Tag="history" Content="Session History" Icon="Clock" />
             </NavigationView.MenuItems>
             <Frame x:Name="RootFrame" />
         </NavigationView>
