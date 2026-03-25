@@ -17,13 +17,7 @@
 
         <Border Grid.Row="0" Background="{StaticResource WrathSurfaceBrush}" BorderBrush="{StaticResource WrathBorderBrush}" BorderThickness="0,0,0,1" Padding="12,10">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Image Width="26" Height="26" Source="ms-appx:///assets/branding/wrath-logo-128.png" Stretch="Uniform" VerticalAlignment="Center" />
-                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                <StackPanel>
                     <TextBlock Text="wrath" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource WrathTextPrimaryBrush}" />
                     <TextBlock Text="Windows Remote Access Tool Hub" FontSize="12" Foreground="{StaticResource WrathTextSecondaryBrush}" />
                 </StackPanel>
@@ -44,7 +38,7 @@
                 <NavigationViewItem Tag="connections" Content="Connections" Icon="AllApps" />
                 <NavigationViewItem Tag="details" Content="Details" Icon="Preview" />
                 <NavigationViewItem Tag="edit" Content="Create/Edit" Icon="Edit" />
-                <NavigationViewItem Tag="history" Content="Session History" Icon="History" />
+                <NavigationViewItem Tag="history" Content="Session History" Icon="Clock" />
             </NavigationView.MenuItems>
             <Frame x:Name="RootFrame" />
         </NavigationView>
